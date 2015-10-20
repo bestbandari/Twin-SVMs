@@ -1,10 +1,12 @@
-function [ rate ] = ten_cross_valid( m,n,c1,c2,gammar,algorithm)
+function [ rate, r1, r2 ] = ten_cross_valid( m,n,c1,c2,gammar,algorithm)
     fold = 5;
 
     row_m = size(m,1)/fold;
     row_n = size(n,1)/fold;
     
     rate = 0;
+    r1 = 0;
+    r2 = 0;
 
     for i = 1:fold
         [train_m,test_m] = get(m,row_m,i,fold);
@@ -29,27 +31,38 @@ function [ rate ] = ten_cross_valid( m,n,c1,c2,gammar,algorithm)
             pre = svmpredict(test_label, [test_m;train_n], model);
         end
         
-        rate = rate + correct_rate(pre,size(test_m,1));
+        [cor, cor1, cor2] = correct_rate(pre,size(test_m,1));
+        rate = rate + cor;
+        r1 = r1 + cor1;
+        r2 = r2 + cor2;
     end
     
     rate = rate / fold;
+    r1 = r1 / fold;
+    r2 = r2 / fold;
 end
 
-function [correct] = correct_rate(pre,num)
+function [correct, c1, c2] = correct_rate(pre,num)
     row = size(pre,1);
     correct = 0;
+    c1 = 0;
+    c2 = 0;
     for i = 1:row
         if  i <= num
             if  pre(i) == 1
                 correct = correct + 1;
+                c1 = c1 + 1;
             end
         else
             if  pre(i) == -1
                 correct = correct + 1;
+                c2 = c2 + 1;
             end
         end
     end
     correct = correct / row;
+    c1 = c1 / num;
+    c2 = c2 / (row - num);
     
 end
 
